@@ -11,25 +11,27 @@ RUN cpanm HTTP::Request
 RUN cpanm LWP::UserAgent
 
 ENV HOMEDIR /home/appuser
-RUN useradd --create-home appuser
-WORKDIR ${HOMEDIR}
-
-RUN wget http://www.compbio.dundee.ac.uk/jpred4/downloads/jpredMassSubmitSchedule.tar.gz
-
-RUN tar xzf jpredMassSubmitSchedule.tar.gz && rm jpredMassSubmitSchedule.tar.gz test_seqs.fa
+ENV INSTALLDIR /usr/local/jpred
+RUN useradd --create-home appuser \
+	&& mkdir $INSTALLDIR
+WORKDIR ${INSTALLDIR}
 
 
 # add script that runs both shell scripts on a multi sequence fasta file
-COPY jpred_mass.sh $HOMEDIR/jpred_mass.sh
+# scripts originally obtained from http://www.compbio.dundee.ac.uk/jpred4/downloads/jpredMassSubmitSchedule.tar.gz
+COPY src $INSTALLDIR
 # add modified massSumbmitScheduler.csh script, changed max jobs from 3 to 30
-COPY massSubmitScheduler.csh ${HOMEDIR}/massSubmitScheduler.csh
+# also modified to correct jpredapi path
 
 # allow user to execute
-RUN chmod a+rx \
-	${HOMEDIR}/prepareInputs.csh \
-	${HOMEDIR}/massSubmitScheduler.csh \
-	${HOMEDIR}/jpred_mass.sh
+RUN chmod -R a+rx ${INSTALLDIR}
+
+RUN ln -s ${INSTALLDIR}/prepareInputs.csh \
+        ${INSTALLDIR}/massSubmitScheduler.csh \
+        ${INSTALLDIR}/jpred_mass.sh \
+	/usr/local/bin 
 
 USER appuser
+WORKDIR ${HOMEDIR}
 
-ENTRYPOINT ["./jpred_mass.sh"]
+ENTRYPOINT ["bash"]

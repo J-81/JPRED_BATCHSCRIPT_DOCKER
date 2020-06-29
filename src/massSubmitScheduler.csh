@@ -100,7 +100,7 @@ foreach line (`ls $dir/*.fasta`)
 		set id = `cat $lineid | awk '{print $6}'`
 		set name = `echo $lineid | sed 's%/% %' | awk '{print $2}' | sed 's%.fasta.log_running_job_id%%g' | awk '{print $1}'`
 		echo "Going to check status of jobid: " $id "name: " $name
-		perl jpredapi status jobid=$id getResults=no checkEvery=once silent > $lineid.log_status
+		perl /usr/local/jpred/jpredapi status jobid=$id getResults=no checkEvery=once silent > $lineid.log_status
 		set mystatus2 = `grep "ERROR" $lineid.log_status | wc -m`
 		if ($mystatus2 > $zero) then 
 		    echo "Jod $id error-ed. Movig to error directory."
@@ -124,7 +124,7 @@ foreach line (`ls $dir/*.fasta`)
 	    echo "n jobs running now: " $nJobsRunning
 	end
 	echo "Input file: " $line "submitting..."
-	perl jpredapi submit mode=single format=fasta silent longtime=on file=$line > $line.log_running_job_id
+	perl /usr/local/jpred/jpredapi submit mode=single format=fasta silent longtime=on file=$line > $line.log_running_job_id
     endif
     set nJobsRunning = `ls $dir/*log_running_job_id | wc -l`
     echo "n jobs running now: " $nJobsRunning
@@ -138,7 +138,7 @@ while ($moreLogs > 0)
 		set id = `cat $lineid | awk '{print $6}'`
 		echo "Going to check status of jobid: " $id
 		set name = `echo $lineid | sed 's%/% %' | awk '{print $2}' | sed 's%.fasta.log_running_job_id%%g' | awk '{print $1}'`
-		perl jpredapi status jobid=$id getResults=no checkEvery=once silent > $lineid.log_status
+		perl /usr/local/jpred/jpredapi status jobid=$id getResults=no checkEvery=once silent > $lineid.log_status
 		set mystatus2 = `grep "ERROR" $lineid.log_status | wc -m`
 		if ($mystatus2 > $zero) then 
 		    echo "Jod $id error-ed. Movig to error directory."
